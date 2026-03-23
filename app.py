@@ -18,15 +18,26 @@ import os
 
 @st.cache_resource
 def download_model_if_needed():
-    """Download model from Google Drive if not present"""
     model_path = 'best_vit_idc_explainable.pth'
     
     if not os.path.exists(model_path):
-        st.info("🔄 Downloading AI model (first time only)...")
-        file_id = '1CkW-C5IurqHPc25Qs3uoI6rbr4d9xFWH/view?usp=sharing'  # Replace this!
-        url = f'https://drive.google.com/uc?id={file_id}'
-        gdown.download(url, model_path, quiet=False)
-        st.success("✅ Model ready!")
+        st.info("🔄 Downloading AI model (first time only, ~300MB)...")
+        file_id = 'YOUR_FILE_ID_HERE'
+        
+        try:
+            # Method 1: fuzzy=True handles the virus-scan confirmation page
+            url = f'https://drive.google.com/uc?id={file_id}'
+            gdown.download(url, model_path, quiet=False, fuzzy=True)
+        except Exception:
+            try:
+                # Method 2: use the export/download format
+                url = f'https://drive.google.com/file/d/{file_id}/view?usp=sharing'
+                gdown.download(url=url, output=model_path, quiet=False, fuzzy=True)
+            except Exception as e:
+                st.error(f"❌ Download failed: {e}")
+                st.stop()
+        
+        st.success("✅ Model downloaded!")
     
     return model_path
 
