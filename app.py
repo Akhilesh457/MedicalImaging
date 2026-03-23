@@ -13,34 +13,22 @@ import matplotlib.pyplot as plt
 import io
 import sys
 from pathlib import Path
-import gdown
 import os
+
+import requests
 
 @st.cache_resource
 def download_model_if_needed():
     model_path = 'best_vit_idc_explainable.pth'
-    
     if not os.path.exists(model_path):
-        st.info("🔄 Downloading AI model (first time only, ~300MB)...")
-        file_id = 'YOUR_FILE_ID_HERE'
-        
-        try:
-            # Method 1: fuzzy=True handles the virus-scan confirmation page
-            url = f'https://drive.google.com/uc?id={file_id}'
-            gdown.download(url, model_path, quiet=False, fuzzy=True)
-        except Exception:
-            try:
-                # Method 2: use the export/download format
-                url = f'https://drive.google.com/file/d/{file_id}/view?usp=sharing'
-                gdown.download(url=url, output=model_path, quiet=False, fuzzy=True)
-            except Exception as e:
-                st.error(f"❌ Download failed: {e}")
-                st.stop()
-        
-        st.success("✅ Model downloaded!")
-    
+        st.info("🔄 Downloading AI model (~300MB)...")
+        url = "https://www.dropbox.com/scl/fi/ybv6z31kdfa8o1v91iz6h/best_vit_idc_explainable.pth?rlkey=15nsvdfm2vyg8nr4mmqw8ptxv&st=inipt1d2&dl=1"
+        response = requests.get(url, stream=True)
+        with open(model_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        st.success("✅ Model ready!")
     return model_path
-
 # Call before loading model
 model_path = download_model_if_needed()
 # Use the downloaded path
